@@ -1,3 +1,10 @@
+// What version of perl grammar do we target? Lower version numbers here will
+// disable newer features
+const PERL_VER = 5.32;
+
+const IF_PERL_VER = (ver, code) =>
+  (PERL_VER >= ver) ? [code] : [];
+
 const primitives = require('./lib/primitives.js')
 
 /* perl.y's precedence list */
