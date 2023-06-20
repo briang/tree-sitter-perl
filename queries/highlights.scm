@@ -5,6 +5,7 @@
   "if" "elsif" "else" "unless"
   "while" "until"
   "for" "foreach"
+  "try" "catch"
   "do"
   "my" "our" "local"
   "require"
