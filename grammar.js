@@ -1,10 +1,3 @@
-// What version of perl grammar do we target? Lower version numbers here will
-// disable newer features
-const PERL_VER = 5.36;
-
-const IF_PERL_VER = (ver, code) =>
-  (PERL_VER >= ver) ? [code] : [];
-
 const primitives = require('./lib/primitives.js')
 
 /* perl.y's precedence list */
@@ -79,6 +72,9 @@ const optseq = (...terms) => optional(seq(...terms));
 const paren_list_of = rule => 
       seq('(', repeat(seq(optional(rule), ',')), optional(rule), ')')
 
+const GUARDED_KW = ($, kw) =>
+  seq(kw, $["_feature_" + kw]);
+
 module.exports = grammar({
   name: 'perl',
   supertypes: $ => [
@@ -128,6 +124,9 @@ module.exports = grammar({
     $._PERLY_COMMA_continue,
     $._fat_comma_zw,
     $._brace_end_zw,
+    /* feature guards */
+    $._feature_try,
+    $._feature_defer,
     /* zero-width high priority token */
     $._NONASSOC,
     /* error condition must always be last; we don't use this in the grammar */
@@ -175,10 +174,10 @@ module.exports = grammar({
       $.loop_statement,
       $.cstyle_for_statement,
       $.for_statement,
-      ...IF_PERL_VER(5.34, $.try_statement),
+      $.try_statement,
       alias($.block, $.block_statement),
       seq($.expression_statement, choice($._PERLY_SEMICOLON, $.__DATA__)),
-      ...IF_PERL_VER(5.36, $.defer_statement),
+      $.defer_statement,
       ';', // this is not _PERLY_SEMICOLON so as not to generate an infinite stream of them
     ),
     package_statement: $ => choice(
@@ -239,17 +238,15 @@ module.exports = grammar({
       ),
 
     try_statement: $ => seq(
-      'try',
+      GUARDED_KW($, 'try'),
       field('try_block', $.block),
       'catch', '(', field('catch_variable', $.scalar), ')',
       field('catch_block', $.block),
-      ...IF_PERL_VER(5.36,
-        optseq('finally', field('finally_block', $.block))
-      ),
+      optseq('finally', field('finally_block', $.block)),
     ),
 
     defer_statement: $ => seq(
-      'defer',
+      GUARDED_KW($, 'defer'),
       field('block', $.block),
     ),
 
