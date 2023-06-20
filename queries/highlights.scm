@@ -6,6 +6,7 @@
   "while" "until"
   "for" "foreach"
   "try" "catch" "finally"
+  "defer"
   "do"
   "my" "our" "local"
   "require"
