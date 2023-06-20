@@ -64,6 +64,8 @@ try { A(); } catch($e) { B(); }
 # <- keyword
 #            ^^^^^ keyword
 #                  ^^ variable.scalar
+try { A(); } catch($e) { B(); } finally { C(); }
+#                               ^^^^^^^ keyword
 package AAA;
 # <- keyword
 #       ^ type

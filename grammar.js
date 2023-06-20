@@ -1,6 +1,6 @@
 // What version of perl grammar do we target? Lower version numbers here will
 // disable newer features
-const PERL_VER = 5.34;
+const PERL_VER = 5.36;
 
 const IF_PERL_VER = (ver, code) =>
   (PERL_VER >= ver) ? [code] : [];
@@ -242,6 +242,9 @@ module.exports = grammar({
       field('try_block', $.block),
       'catch', '(', field('catch_variable', $.scalar), ')',
       field('catch_block', $.block),
+      ...IF_PERL_VER(5.36,
+        optseq('finally', field('finally_block', $.block))
+      ),
     ),
 
     // perly.y calls this `sideff`
