@@ -118,6 +118,9 @@ module.exports = grammar({
     $._heredoc_start,
     $._heredoc_middle,
     $.heredoc_end,
+    /* scanner state peek tokens */
+    $._PEEK_AFTER_USE,
+    $._PEEK_AFTER_USE_MODULE,
     /* zero-width lookahead tokens */
     $._CHEQOP_continue,
     $._CHRELOP_continue,
@@ -184,10 +187,17 @@ module.exports = grammar({
       seq('package', field('name', $.package), optional(field('version', $._version)), $._PERLY_SEMICOLON),
       seq('package', field('name', $.package), optional(field('version', $._version)), $.block),
     ),
-    use_version_statement: $ => seq($._KW_USE, field('version', $._version), $._PERLY_SEMICOLON),
+    use_version_statement: $ => seq(
+      $._KW_USE,
+      $._PEEK_AFTER_USE,
+      field('version', $._version),
+      $._PERLY_SEMICOLON
+    ),
     use_statement: $ => seq(
       $._KW_USE,
+      $._PEEK_AFTER_USE,
       field('module', $.package),
+      $._PEEK_AFTER_USE_MODULE, /* avoid getting confused about optional version */
       optional(field('version', $._version)),
       optional($._listexpr),
       $._PERLY_SEMICOLON
